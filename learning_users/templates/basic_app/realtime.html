@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+{% extends "basic_app/base.html" %}
+{% block body_block %}
+
+{% load static %}
+
+<head>
+  <meta charset="utf-8">
+  <title>Realtime</title>
+  <script src="{% static "css/build/tracking-min.js" %}"></script>
+  <script src="{% static "css/build/data/face-min.js" %}"></script>
+  <link rel="stylesheet" href="{% static "css/style.css" %}">
+  <style>
+  	video, canvas {
+  	    margin-left: 230px;
+  	    margin-top: 80px;
+  	    position: absolute;
+  	}
+  </style>
+  </head>
+
+  <body>
+      <div class="container">
+      <div class="demo-frame">
+          <div class="demo-container">
+              <video id="video" width="720" height="560" preload autoplay loop
+                  muted></video>
+              <canvas id="canvas" width="640" height="480"></canvas>
+          </div>
+      </div>
+      <div>
+      	<p >No. of People = </p><p id="id1"></p><br>
+          <!-- <p >Total Count = </p><p id="id2"></p> -->
+      </div>
+      <button type="button" onclick="onclk()" class="btn btn-primary" id="stop">Stop</button>
+    </div>
+      <script>
+          var stopVideo = document.querySelector('stop');
+          var video = document.getElementById('video');
+          var canvas = document.getElementById('canvas');
+          var context = canvas.getContext('2d');
+
+          var tracker = new tracking.ObjectTracker('face');
+          tracker.setInitialScale(4);
+          tracker.setStepSize(2);
+          tracker.setEdgesDensity(0.1);
+
+          function max(input) {
+          if(toString.call(input) !== "[object Array]")
+            return false;
+          return Math.max.apply(null, input);
+          }
+
+          tracking.track('#video', tracker, {
+              camera : true
+          });
+          var mx=0;//,cnt=0;
+          tracker.on('track', function(event) {
+              context.clearRect(0, 0, canvas.width, canvas.height);
+              console.log(event.data.length);
+              mx=max([mx,event.data.length]);
+              // cnt=cnt+event.data.length;
+              console.log('mx=',mx);
+              document.getElementById("id1").innerHTML=mx;
+              // document.getElementById("id2").innerHTML=cnt;
+              event.data.forEach(function(rect) {
+
+                  console.log('face detected');
+              });
+          });
+          function onclk(){
+            window.alert("No of Face detected :" + mx);
+            location.replace("http://127.0.0.1:8000/")
+          }
+      </script>
+      {% endblock %}
+  </body>
+
+  </html>
